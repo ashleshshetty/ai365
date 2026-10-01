@@ -1,0 +1,25 @@
+<meta charset="utf-8">
+<h2>Runn LLM on your browser</h2>
+<div id="logs" style="font-family: monospace; line-height: 1.8;"></div>
+
+<script type="module">
+  import { pipeline } from 'https://cdn.jsdelivr.net/npm/@huggingface/transformers@3.0.0';
+
+  const log = (msg) => {
+    const time = new Date().toLocaleTimeString();
+    document.getElementById('logs').innerHTML += `<div><b>[${time}]</b> ${msg}</div>`;
+  };
+
+  // Easily change your model and question here!
+  const modelName = 'onnx-community/SmolLM2-135M-Instruct-ONNX-MHA';
+  const prompt = 'Define data science in one sentence';
+
+  log(`⏳ Downloading & Initializing: <b>${modelName}</b>...`);
+  const ai = await pipeline('text-generation', modelName, { device: 'webgpu', dtype: 'q4' });
+
+  log(`🧠 Model loaded into RAM. Asking: <i>"${prompt}"</i>...`);
+  const out = await ai([{ role: "user", content: prompt }], { max_new_tokens: 50 });
+
+  const answer = out[0].generated_text[1].content;
+  log(`✅ <b>Result:</b> <span style="color: blue;">${answer}</span>`);
+</script>
